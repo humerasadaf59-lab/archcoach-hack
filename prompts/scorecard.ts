@@ -1,0 +1,1 @@
+export default "scorecard prompt" 
