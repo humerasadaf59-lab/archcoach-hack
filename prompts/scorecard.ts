@@ -1,1 +1,1 @@
-export default "scorecard prompt" 
+export const SCORECARD_PROMPT = "scorecard" 

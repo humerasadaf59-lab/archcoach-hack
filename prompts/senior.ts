@@ -1,1 +1,1 @@
-export default "senior prompts" 
+export const SENIOR_INTERVIEWER_PROMPT = "senior" 

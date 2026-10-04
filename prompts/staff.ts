@@ -1,1 +1,1 @@
-export default "staff prompt" 
+export const STAFF_INTERVIEWER_PROMPT = "staff" 
