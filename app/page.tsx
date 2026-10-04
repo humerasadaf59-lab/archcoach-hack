@@ -1,54 +1,46 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
-const LEVELS = [
-  { id: "junior", title: "Junior", desc: "API, DB, Cache basics" },
-  { id: "senior", title: "Senior", desc: "Scalability, Failures" },
-  { id: "staff", title: "Staff", desc: "Cost, 10x Scale, Org tradeoffs" },
-] as const;
+function InterviewContent() {
+  const searchParams = useSearchParams();
+  const level = searchParams.get("level") || "senior";
+  const [messages, setMessages] = useState([{role:"assistant", content:`Welcome! You selected ${level} level. Let's design a URL shortener. How would you start?`}]);
+  const [input, setInput] = useState("");
 
-export default function Home() {
-  const router = useRouter();
-  const [level, setLevel] = useState<string>("senior");
+  const send = async () => {
+    if(!input) return;
+    const newMsgs = [...messages, {role:"user", content:input}];
+    setMessages(newMsgs as any);
+    setInput("");
+    setMessages([...newMsgs, {role:"assistant", content:"Great approach! How would you handle database scaling for 1M URLs? What about caching?"}] as any);
+  };
 
   return (
-    <main className="min-h-screen bg-[#faf9f5]">
-      <header className="flex items-center justify-between px-8 py-6">
-        <span className="text-3xl font-black">🏗️ ArchCoach</span>
-        <span className="rounded-full bg-black px-5 py-3 text-sm font-black text-white">48H HACKATHON</span>
-      </header>
+    <div style={{padding:20, maxWidth:800, margin:"0 auto", fontFamily:"sans-serif"}}>
+      <h1>Mock Interview - {level.toUpperCase()}</h1>
+      <p>AI Interviewer for System Design</p>
+      <div style={{border:"1px solid #ddd", height:400, overflowY:"auto", padding:10, margin:"20px 0", background:"#f9f9f9"}}>
+        {messages.map((m,i)=>(
+          <div key={i} style={{margin:10, padding:10, borderRadius:8, background: m.role==="user"?"#000":"#fff", color: m.role==="user"?"#fff":"#000", textAlign: m.role==="user"?"right":"left", marginLeft: m.role==="user"?"50px":"0", marginRight: m.role==="user"?"0":"50px"}}>
+            <b>{m.role}:</b> {m.content}
+          </div>
+        ))}
+      </div>
+      <div style={{display:"flex", gap:10}}>
+        <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} placeholder="Type your answer..." style={{flex:1, padding:12, border:"1px solid #ccc", borderRadius:6}} />
+        <button onClick={send} style={{padding:"12px 24px", background:"black", color:"white", borderRadius:6, border:"none", cursor:"pointer"}}>Send</button>
+      </div>
+      <br/><br/>
+      <a href="/" style={{color:"blue"}}>← Back to Home</a>
+    </div>
+  );
+}
 
-      <section className="mx-auto max-w-5xl px-8 pt-16 text-center">
-        <h1 className="text-6xl font-black leading-tight md:text-7xl">
-          Master System Design<br />Like a Staff Engineer
-        </h1>
-        <p className="mt-8 text-xl text-gray-600">
-          AI Interviewer + Live Diagram Critic + Scorecard. Junior / Senior / Staff.
-        </p>
-
-        <button
-          onClick={() => router.push(`/interview?level=${level}`)}
-          className="mt-12 rounded-xl border-2 border-gray-600 bg-black px-10 py-5 text-xl font-bold text-white hover:bg-gray-800"
-        >
-          Start Mock Interview →
-        </button>
-
-        <div className="mt-20 grid gap-6 md:grid-cols-3">
-          {LEVELS.map((l) => (
-            <button
-              key={l.id}
-              onClick={() => setLevel(l.id)}
-              className={`rounded-2xl bg-white p-10 text-left transition ${
-                level === l.id ? "border-2 border-black" : "border border-gray-200"
-              }`}
-            >
-              <p className="text-xl font-bold">{l.title}</p>
-              <p className="mt-4">{l.desc}</p>
-            </button>
-          ))}
-        </div>
-      </section>
-    </main>
+export default function InterviewPage() {
+  return (
+    <Suspense fallback={<div style={{padding:20}}>Loading interview...</div>}>
+      <InterviewContent />
+    </Suspense>
   );
 }
