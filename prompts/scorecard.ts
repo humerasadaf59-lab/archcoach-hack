@@ -1,1 +1,1 @@
-export const SCORECARD_PROMPT = "scorecard" 
+export const SCORECARD-PROMPT = 'you are scoring. JSON with scores.' 
